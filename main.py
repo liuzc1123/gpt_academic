@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os; os.environ['no_proxy'] = '*' # 避免代理网络产生意外污染
 
 def main():
@@ -15,9 +16,14 @@ def main():
 
     from check_proxy import get_current_version
     from themes.theme import adjust_theme, advanced_css, theme_declaration
-    initial_prompt = "Serve me as a writing and programming assistant."
-    title_html = f"<h1 align=\"center\">GPT 学术优化 {get_current_version()}</h1>{theme_declaration}"
-    description =  """代码开源和更新[地址🚀](https://github.com/binary-husky/chatgpt_academic)，感谢热情的[开发者们❤️](https://github.com/binary-husky/chatgpt_academic/graphs/contributors)"""
+    # initial_prompt = "Serve me as a writing and programming assistant."
+    initial_prompt = "Serve me as a college professor, or academic writing assistant, or psychologist, " \
+                     "based on which field my input or question belongs to. If you don't know answer, don't " \
+                     "make up any nonsense."
+    # title_html = f"<h1 align=\"center\">小超助理 {get_current_version()}</h1>{theme_declaration}"
+    # description =  """代码开源和更新[地址🚀](https://github.com/binary-husky/chatgpt_academic)，感谢热情的[开发者们❤️]
+    # (https://github.com/binary-husky/chatgpt_academic/graphs/contributors)"""
+    description = """感谢试用❤️ 请多提意见"""
 
     # 问询记录, python 版本建议3.9+（越新越好）
     import logging, uuid
@@ -31,6 +37,10 @@ def main():
     # 一些普通功能模块
     from core_functional import get_core_functions
     functional = get_core_functions()
+
+    # 科研场景模块
+    from core_scene import get_core_scenes
+    scenes = get_core_scenes()
 
     # 高级函数插件
     from crazy_functional import get_crazy_functions
@@ -46,7 +56,7 @@ def main():
     from check_proxy import check_proxy, auto_update, warm_up_modules
     proxy_info = check_proxy(proxies)
 
-    gr_L1 = lambda: gr.Row().style()
+    gr_L1 = lambda: gr.Row(elem_id="gr_L1")
     gr_L2 = lambda scale, elem_id: gr.Column(scale=scale, elem_id=elem_id)
     if LAYOUT == "TOP-DOWN":
         gr_L1 = lambda: DummyWith()
@@ -54,12 +64,15 @@ def main():
         CHATBOT_HEIGHT /= 2
 
     cancel_handles = []
-    with gr.Blocks(title="GPT 学术优化", theme=set_theme, analytics_enabled=False, css=advanced_css) as demo:
-        gr.HTML(title_html)
+    with gr.Blocks(title="小超助理", theme=set_theme, analytics_enabled=False, css=advanced_css) as demo:
+        # gr.HTML(title_html)
+        gr.HTML()
         cookies = gr.State(load_chat_cookies())
         with gr_L1():
             with gr_L2(scale=2, elem_id="gpt-chat"):
                 chatbot = gr.Chatbot(label=f"当前模型：{LLM_MODEL}", elem_id="gpt-chatbot")
+                # chatbot.style(height="100vh") # 后加
+                chatbot.style(height=CHATBOT_HEIGHT/1.5)
                 if LAYOUT == "TOP-DOWN":  chatbot.style(height=CHATBOT_HEIGHT)
                 history = gr.State([])
             with gr_L2(scale=1, elem_id="gpt-panel"):
@@ -76,14 +89,19 @@ def main():
                         with gr.Row():
                             audio_mic = gr.Audio(source="microphone", type="numpy", streaming=True, show_label=False).style(container=False)
                     with gr.Row():
-                        status = gr.Markdown(f"Tip: 按Enter提交, 按Shift+Enter换行。当前模型: {LLM_MODEL} \n {proxy_info}", elem_id="state-panel")
+                        # status = gr.Markdown(f"Tip: 按Enter提交, 按Shift+Enter换行。当前模型: {LLM_MODEL} \n {proxy_info}", elem_id="state-panel")
+                        status = gr.Markdown(f'<span style="color: grey;">按Enter提交, 按Shift+Enter换行</span>')
                 with gr.Accordion("基础功能区", open=True, elem_id="basic-panel") as area_basic_fn:
                     with gr.Row():
                         for k in functional:
                             if ("Visible" in functional[k]) and (not functional[k]["Visible"]): continue
                             variant = functional[k]["Color"] if "Color" in functional[k] else "secondary"
-                            functional[k]["Button"] = gr.Button(k, variant=variant)
-                with gr.Accordion("函数插件区", open=True, elem_id="plugin-panel") as area_crazy_fn:
+                            functional[k]["Button"] = gr.Button(k, variant=variant) # 按钮颜色样式
+                with gr.Accordion("科研场景", open=True, elem_id="sci-scene") as area_sci_scenes:
+                    dropdown_scene_list = [k for k in scenes.keys() if ('hidden' not in scenes[k] or not scenes[k]['hidden'])]
+                    selected_scene = gr.Dropdown(dropdown_scene_list, value="选择科研场景", show_label=False).style(container=False)
+
+                with gr.Accordion("函数插件区", open=False, elem_id="plugin-panel") as area_crazy_fn:
                     with gr.Row():
                         gr.Markdown("插件可读取“输入区”文本/路径作为参数（上传文件自动修正路径）")
                     with gr.Row():
@@ -107,8 +125,8 @@ def main():
                             file_upload = gr.Files(label="任何文件, 但推荐上传压缩文件(zip, tar)", file_count="multiple")
                 with gr.Accordion("更换模型 & SysPrompt & 交互界面布局", open=(LAYOUT == "TOP-DOWN"), elem_id="interact-panel"):
                     system_prompt = gr.Textbox(show_label=True, placeholder=f"System Prompt", label="System prompt", value=initial_prompt)
-                    top_p = gr.Slider(minimum=-0, maximum=1.0, value=1.0, step=0.01,interactive=True, label="Top-p (nucleus sampling)",)
-                    temperature = gr.Slider(minimum=-0, maximum=2.0, value=1.0, step=0.01, interactive=True, label="Temperature",)
+                    top_p = gr.Slider(minimum=-0, maximum=1.0, value=0.0, step=0.01,interactive=True, label="Top-p (nucleus sampling)",)
+                    temperature = gr.Slider(minimum=-0, maximum=2.0, value=0.0, step=0.01, interactive=True, label="Temperature",)
                     max_length_sl = gr.Slider(minimum=256, maximum=8192, value=4096, step=1, interactive=True, label="Local LLM MaxLength",)
                     checkboxes = gr.CheckboxGroup(["基础功能区", "函数插件区", "底部输入区", "输入清除键", "插件参数区"], value=["基础功能区", "函数插件区"], label="显示/隐藏功能区")
                     md_dropdown = gr.Dropdown(AVAIL_LLM_MODELS, value=LLM_MODEL, label="更换LLM模型/请求源").style(container=False)
@@ -137,7 +155,7 @@ def main():
             return ret
         checkboxes.select(fn_area_visibility, [checkboxes], [area_basic_fn, area_crazy_fn, area_input_primary, area_input_secondary, txt, txt2, clearBtn, clearBtn2, plugin_advanced_arg] )
         # 整理反复出现的控件句柄组合
-        input_combo = [cookies, max_length_sl, md_dropdown, txt, txt2, top_p, temperature, chatbot, history, system_prompt, plugin_advanced_arg]
+        input_combo = [cookies, max_length_sl, md_dropdown, txt, txt2, top_p, temperature, chatbot, history, system_prompt, plugin_advanced_arg, selected_scene]
         output_combo = [cookies, chatbot, history, status]
         predict_args = dict(fn=ArgsGeneralWrapper(predict), inputs=input_combo, outputs=output_combo)
         # 提交按钮、重置按钮
@@ -221,7 +239,7 @@ def main():
 
     auto_opentab_delay()
     demo.queue(concurrency_count=CONCURRENT_COUNT).launch(
-        server_name="0.0.0.0", server_port=PORT,
+        server_name="0.0.0.0", server_port=PORT, share=True,
         favicon_path="docs/logo.png", auth=AUTHENTICATION,
         blocked_paths=["config.py","config_private.py","docker-compose.yml","Dockerfile"])
 

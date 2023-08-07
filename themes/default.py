@@ -6,7 +6,7 @@ def adjust_theme():
 
     try:
         color_er = gr.themes.utils.colors.fuchsia
-        set_theme = gr.themes.Default(
+        set_theme = gr.themes.Soft(
             primary_hue=gr.themes.utils.colors.orange,
             neutral_hue=gr.themes.utils.colors.gray,
             font=["sans-serif", "Microsoft YaHei", "ui-sans-serif", "system-ui"],

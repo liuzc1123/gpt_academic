@@ -42,6 +42,7 @@ def get_core_functions():
         "中译英": {
             "Prefix":   r"Please translate following sentence to English:" + "\n\n",
             "Suffix":   r"",
+            "Visible": False,
         },
         "学术中英互译": {
             "Prefix":   r"I want you to act as a scientific English-Chinese translator, " +
@@ -58,6 +59,7 @@ def get_core_functions():
         "英译中": {
             "Prefix":   r"翻译成地道的中文：" + "\n\n",
             "Suffix":   r"",
+            "Visible": False,
         },
         "找图片": {
             "Prefix":   r"我需要你找一张网络图片。使用Unsplash API(https://source.unsplash.com/960x640/?<英语关键词>)获取图片URL，" +
@@ -69,10 +71,15 @@ def get_core_functions():
             "Prefix":   r"请解释以下代码：" + "\n```\n",
             "Suffix":   "\n```\n",
         },
-        "参考文献转Bib": {
+        "文献转Bib格式": {
             "Prefix":   r"Here are some bibliography items, please transform them into bibtex style." +
-                        r"Note that, reference styles maybe more than one kind, you should transform each item correctly." +
+                        r"Note that, reference styles may be more than one kind, you should transform each item correctly." +
                         r"Items need to be transformed:",
             "Suffix":   r"",
+        },
+        "心理疏导": {
+            "Prefix": r"Here are some of my recent thoughts. Please encourage, comfort, enlighten me based on the "
+                      r"emotions in these thoughts, so that I can feel better and happier. " + "\n",
+            "Suffix": "\n" + r"If my input contains Chinese, reply to me in Chinese, otherwise reply to me in English",
         }
     }

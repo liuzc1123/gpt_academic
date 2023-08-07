@@ -11,7 +11,7 @@ python-docx
 mdtex2html
 anthropic
 colorama
-Markdown
+Markdownpip i
 pygments
 pymupdf
 openai

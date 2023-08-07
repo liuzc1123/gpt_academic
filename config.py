@@ -12,7 +12,7 @@ API_KEY = "此处填API密钥"    # 可同时填写多个API-KEY，用英文逗�
 
 
 # [step 2]>> 改为True应用代理，如果直接在海外服务器部署，此处不修改
-USE_PROXY = False
+USE_PROXY = True
 if USE_PROXY:
     """
     填写格式是 [协议]://  [地址] :[端口]，填写之前不要忘记把USE_PROXY改成True，如果直接在海外服务器部署，此处不修改
@@ -22,10 +22,15 @@ if USE_PROXY:
     [端口] 在代理软件的设置里找。虽然不同的代理软件界面不一样，但端口号都应该在最显眼的位置上
     """
     # 代理网络的地址，打开你的*学*网软件查看代理的协议(socks5h / http)、地址(localhost)和端口(11284)
+    # proxies = {
+    #     #          [协议]://  [地址]  :[端口]
+    #     "http":  "socks5h://localhost:11284",  # 再例如  "http":  "http://127.0.0.1:7890",    https://d18a2b127d87c384d6.gradio.live
+    #     "https": "socks5h://localhost:11284",  # 再例如  "https": "http://127.0.0.1:7890",
+    # }
     proxies = {
         #          [协议]://  [地址]  :[端口]
-        "http":  "socks5h://localhost:11284",  # 再例如  "http":  "http://127.0.0.1:7890",
-        "https": "socks5h://localhost:11284",  # 再例如  "https": "http://127.0.0.1:7890",
+        "http": "socks5h://localhost:7890",  # 再例如  "http":  "http://127.0.0.1:7890",
+        "https": "socks5h://localhost:7890",  # 再例如  "https": "http://127.0.0.1:7890",
     }
 else:
     proxies = None
